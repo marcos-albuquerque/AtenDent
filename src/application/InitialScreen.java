@@ -1,9 +1,13 @@
 package application;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.util.*;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -57,27 +61,32 @@ public class InitialScreen {
 		
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public void login(ActionEvent event) throws IOException {
 		
-		String cpf = cpfTextField.getText();
-		String password = passwordField.getText();
+		String cpfInput = cpfTextField.getText();
+		String passwordInput = passwordField.getText();
 		
 		// se a checkBox estiver selecionada
-		if(checkBox.isSelected()) {
-								
-			FileInputStream   file  = new FileInputStream("src/files/dentist.txt");
-			InputStreamReader input = new InputStreamReader(file);
-			BufferedReader    br    = new BufferedReader(input);
+		if(checkBox.isSelected()) {								
 			
-			String line;
-			String[] words = new String[3];			
+			JSONParser parser = new JSONParser();
 			
-			for(int i = 0; i < 3; i++) {
-				line = br.readLine();
-				words[i] = line;				
+			String cpf = "";
+			String password = "";
+			
+			try {
+				Object obj = parser.parse(new FileReader("src/files/dentist.json"));
+				JSONObject jsonObject = (JSONObject) obj;
+				cpf = (String) jsonObject.get("CPF");
+				password = (String) jsonObject.get("password");
+				
 			}
+			catch(FileNotFoundException e) { e.printStackTrace(); }
+			catch(IOException e) { e.printStackTrace(); }
+			catch(ParseException e) { e.printStackTrace(); }
 			
-			if(cpf.equals(words[1]) && password.equals(words[2])) {
+			if(cpfInput.equals(cpf) && passwordInput.equals(password)) {
 				root = FXMLLoader.load(getClass().getResource("/scenes/DentistaScene.fxml"));
 			}
 			else {				
@@ -85,37 +94,38 @@ public class InitialScreen {
 				warnLabel.setVisible(true);
 			}
 			
-			br.close();
 		}
 		else { // Se a checkBox não estiver selecionada			
 		
-			FileInputStream   file  = new FileInputStream("src/files/secretary.txt");
-			InputStreamReader input = new InputStreamReader(file);
-			BufferedReader    br    = new BufferedReader(input);			
-			int ab = file.available();
+			JSONParser parser = new JSONParser();
 			
-			String line;
-			String[] words = new String[5];			
+			String cpf = "";
+			String password = "";
+			boolean a = false;
 			
-			for(int i = 0; i < 5; i++) {
-				line = br.readLine();
-				words[i] = line;				
-			}					
+			try {
+				Object obj = parser.parse(new FileReader("src/files/secretary.json"));
+				JSONObject jsonObject = (JSONObject) obj;
+				cpf = (String) jsonObject.get("CPF");
+				password = (String) jsonObject.get("password");
+				a = ((HashMap) obj).isEmpty();
+			}
+			catch(FileNotFoundException e) { e.printStackTrace(); }
+			catch(IOException e) { e.printStackTrace(); }
+			catch(ParseException e) { e.printStackTrace(); }								
 			
-			if(ab == 0) {
+			
+			if( a ) { // arquivo secretary está vazio
 				warnLabel.setText("Secretário(a) não cadastrodo(a)!");
 				warnLabel.setVisible(true);
 			}
-			// É preciso realizar o cadastro do(a) secretário(a) ainda
-			else if(cpf.equals(words[1]) && password.equals(words[4])) {
+			else if(cpfInput.equals(cpf) && passwordInput.equals(password)) { // autenticalção
 				root = FXMLLoader.load(getClass().getResource("/scenes/SecretaryScene.fxml"));
 			}
 			else {
 				warnLabel.setText("CPF e/ou senha incorretos!");
 				warnLabel.setVisible(true);
-			}
-			
-			br.close();
+			}			
 		}
 		
 		if(root != null) {

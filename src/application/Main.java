@@ -33,7 +33,7 @@ public class Main extends Application {
 	}
 	
 	public boolean hasDentist() {
-		File fileInput = new File("src/files/dentist.txt");
+		File fileInput = new File("src/files/dentist.json");
     	
     	if(fileInput.length() == 0) {
     		return false;

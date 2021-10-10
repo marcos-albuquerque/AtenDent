@@ -2,10 +2,13 @@ package application;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.FormatterClosedException;
 import java.util.NoSuchElementException;
+
+import org.json.simple.JSONObject;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,6 +20,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+@SuppressWarnings("unused")
 public class DentistRegController {
 	
 	private Stage stage;
@@ -37,10 +41,9 @@ public class DentistRegController {
 	
     private static FileOutputStream file;
     
-    @FXML
-    void registerDentist(ActionEvent event) throws IOException {    	
-    	
-    	openFileDentist();
+    @SuppressWarnings("unchecked")
+	@FXML
+    void registerDentist(ActionEvent event) throws IOException {    	    	
     	
     	if(nameInput.getText().equals("") || cpfInput.getText().equals("")
     			|| passwordInput.getText().equals("")) {
@@ -50,43 +53,33 @@ public class DentistRegController {
     		warnLabel.setVisible(true);
     		
     	}
-    	else {
+    	else {    		    		
     		
     		Dentist dentist = new Dentist(nameInput.getText(),
     				cpfInput.getText(), passwordInput.getText());
-        	
-        	try {
-        		
-        		PrintWriter pw = new PrintWriter(file);    		
-        		
-        		pw.printf("%s\n", dentist.getName());
-    			pw.printf("%s\n", dentist.getCpf());
-    			pw.printf("%s", dentist.getPassword());
-    			
-    			pw.close();
-        		
-        	}
-        	catch(FormatterClosedException formatterClosedException){
-    			System.err.println("Error writing to file. Terminating.");
+    		
+    		JSONObject obj = new JSONObject();
+    		
+    		obj.put("name", dentist.getName());
+    		obj.put("CPF", dentist.getCpf());
+    		obj.put("password", dentist.getPassword());
+    		
+    		try (FileWriter file = new FileWriter("src/files/dentist.json")) {
+    			file.write(obj.toString());
+    			file.flush();
     		}
-    		catch (NoSuchElementException elementException)
-    		{
-    			System.err.println("Invalid input. Please try again.");
+    		catch (IOException e) {
+    			e.printStackTrace();
     		}
-        	
+        	    		        
         	nameInput.clear();
         	cpfInput.clear();
         	passwordInput.clear();
         	    		
-    		root = FXMLLoader.load(getClass().getResource("/scenes/InitialScene.fxml"));
-			stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-			scene = new Scene(root);
-			stage.setScene(scene);
-			stage.show();
+    		DentistController dc = new DentistController();
+			dc.logout(event);
     	
-    	}
-    	
-    	file.close();
+    	}    	
     }         
     
     public void openFileDentist() {	

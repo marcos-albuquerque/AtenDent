@@ -8,11 +8,7 @@ import java.util.ResourceBundle;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -23,7 +19,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
 
 public class SecretaryController implements Initializable {
 	
@@ -128,6 +123,7 @@ public class SecretaryController implements Initializable {
 			warnLabel.setText("Preencha todos os campos!");
 			warnLabel.setVisible(true);
 		} else {
+			
 			Paciente paciente = new Paciente(nameInput.getText(), cpfInput.getText(),
 					addressInput.getText(), phoneNumberInput.getText(),
 					scheduleInput.getText(), getDate(), typeInput.getText(),
@@ -140,6 +136,7 @@ public class SecretaryController implements Initializable {
 	        
 	        warnLabel.setVisible(false);
 	        
+	        // limpa os campos de entrada (os textFields)
 	        nameInput.clear();
 	        cpfInput.clear();
 	        addressInput.clear();
@@ -178,15 +175,14 @@ public class SecretaryController implements Initializable {
 	
 	@FXML
     void logout(ActionEvent event) throws IOException {
-		Stage stage;
-		Scene scene;
-		Parent root;
 		
-		root = FXMLLoader.load(getClass().getResource("/scenes/InitialScene.fxml"));
-		stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-		scene = new Scene(root);
-		stage.setScene(scene);
-		stage.show();
+		DentistController d = new DentistController();
+		
+		d.logout(event);
+		
     }
+	
+	// FALTA IMPLEMENTAR:
+	// 	salvar e recuperar dados da tabela de consulta a partir de um arquivo json
 
 }

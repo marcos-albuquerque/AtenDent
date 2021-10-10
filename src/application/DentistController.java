@@ -2,10 +2,13 @@ package application;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.FormatterClosedException;
 import java.util.NoSuchElementException;
+
+import org.json.simple.JSONObject;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -19,9 +22,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+@SuppressWarnings("unused")
 public class DentistController {
 	
-	// Tabela de consultas
+	// variáveis para Tabela de consultas
 	@FXML
     private TableView<Paciente> tableView;
 
@@ -38,7 +42,7 @@ public class DentistController {
     private TableColumn<Paciente, String> typeColumn;
 
     
-    // para cadastro de secretária
+    // variáveis para cadastro de secretária
     @FXML
     private TextField nameInput;
 
@@ -56,17 +60,13 @@ public class DentistController {
     
     @FXML
     private Label warnLabel;
-    
-    
-    //private static Formatter output;
+        
     private static FileOutputStream file;
 	
 	
+	@SuppressWarnings("unchecked")
 	@FXML
-	void registerSecretary(ActionEvent event) throws IOException {
-		
-		openFileSecretary();
-			
+	void registerSecretary(ActionEvent event) throws IOException {		
 		
 		if(nameInput.getText().equals("") || cpfInput.getText().equals("")
 				|| phoneNumberInput.getText().equals("") || emailInput.getText().equals("")
@@ -77,48 +77,36 @@ public class DentistController {
 			warnLabel.setVisible(true);	
 			
 		} else {
-			
+						
 			Secretary secretary = new Secretary(nameInput.getText(), cpfInput.getText(),
 					phoneNumberInput.getText(), emailInput.getText(), passwordInput.getText());
 			
-			try {
-				PrintWriter pr = new PrintWriter(file);
-				
-				pr.printf("%s\n", secretary.getName());
-				pr.printf("%s\n", secretary.getCpf());
-				pr.printf("%s\n", secretary.getPhoneNumber());
-				pr.printf("%s\n", secretary.getEmail());
-				pr.printf("%s", secretary.getPassword());
-				
-				warnLabel.setStyle("-fx-text-fill: green;");
-				warnLabel.setText("Cadastro realizado com sucesso!");
-				warnLabel.setVisible(true);				
-				
-				pr.close();			
-				
-				nameInput.clear();
-				cpfInput.clear();
-				phoneNumberInput.clear();
-				emailInput.clear();
-				passwordInput.clear();
-				
-			}
-			catch(FormatterClosedException formatterClosedException){
-				System.err.println("Error writing to file. Terminating.");
-			}
-			catch (NoSuchElementException elementException)
-			{
-				System.err.println("Invalid input. Please try again.");
-			}
-			
+			JSONObject obj = new JSONObject();
+    		
+    		obj.put("name", secretary.getName());
+    		obj.put("CPF", secretary.getCpf());
+    		obj.put("phoneNumber", secretary.getPhoneNumber());
+    		obj.put("email", secretary.getEmail());
+    		obj.put("password", secretary.getPassword());
+    		
+    		try (FileWriter file = new FileWriter("src/files/secretary.json")) {
+    			file.write(obj.toString());
+    			file.flush();
+    		}
+    		catch (IOException e) {
+    			e.printStackTrace();
+    		}		
+    		
+    		nameInput.clear();
+			cpfInput.clear();
+			phoneNumberInput.clear();
+			emailInput.clear();
+			passwordInput.clear();
 		}
-		
-		file.close();
 		
 	}
 		
-	public void openFileSecretary() {	
-		
+	public void openFileSecretary() {
 		try
 		{
 			
@@ -149,5 +137,10 @@ public class DentistController {
 		stage.setScene(scene);
 		stage.show();
     }
+	
+	// FALTA IMPLEMENTAR:
+	// tabela de consultas
+	//		buscar de arquivo json
+	
 	
 }

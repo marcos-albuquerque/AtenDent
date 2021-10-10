@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.DentistController">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.DentistController">
   <tabs>
     <Tab text="Lista de consultas">
       <content>
@@ -43,54 +43,54 @@
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
-                  <VBox alignment="CENTER" layoutX="156.0" layoutY="29.0" prefHeight="311.0" prefWidth="289.0" AnchorPane.bottomAnchor="29.0" AnchorPane.leftAnchor="156.0" AnchorPane.rightAnchor="155.0" AnchorPane.topAnchor="29.0">
+                  <VBox alignment="CENTER" layoutX="156.0" layoutY="29.0" minWidth="-Infinity" prefHeight="311.0" prefWidth="289.0" AnchorPane.bottomAnchor="29.0" AnchorPane.leftAnchor="156.0" AnchorPane.rightAnchor="155.0" AnchorPane.topAnchor="29.0">
                      <children>
-                        <Label prefHeight="16.0" prefWidth="288.0" text="Nome completo">
+                        <Label minWidth="-Infinity" prefHeight="16.0" prefWidth="290.0" text="Nome completo">
                            <VBox.margin>
                               <Insets top="8.0" />
                            </VBox.margin>
                         </Label>
-                        <TextField fx:id="nameInput" prefHeight="24.0" prefWidth="235.0">
+                        <TextField fx:id="nameInput" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="24.0" prefWidth="290.0">
                            <VBox.margin>
                               <Insets top="3.0" />
                            </VBox.margin>
                         </TextField>
-                        <Label prefHeight="16.0" prefWidth="287.0" text="CPF">
+                        <Label minWidth="-Infinity" prefHeight="16.0" prefWidth="290.0" text="CPF">
                            <VBox.margin>
                               <Insets top="3.0" />
                            </VBox.margin>
                         </Label>
-                        <TextField fx:id="cpfInput" prefHeight="24.0" prefWidth="234.0">
+                        <TextField fx:id="cpfInput" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="24.0" prefWidth="290.0">
                            <VBox.margin>
                               <Insets top="3.0" />
                            </VBox.margin>
                         </TextField>
-                        <Label prefHeight="16.0" prefWidth="290.0" text="Telefone">
+                        <Label minWidth="-Infinity" prefHeight="16.0" prefWidth="290.0" text="Telefone">
                            <VBox.margin>
                               <Insets top="3.0" />
                            </VBox.margin>
                         </Label>
-                        <TextField fx:id="phoneNumberInput" prefHeight="24.0" prefWidth="234.0">
+                        <TextField fx:id="phoneNumberInput" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="24.0" prefWidth="290.0">
                            <VBox.margin>
                               <Insets top="3.0" />
                            </VBox.margin>
                         </TextField>
-                        <Label prefHeight="16.0" prefWidth="292.0" text="E-mail">
+                        <Label minWidth="-Infinity" prefHeight="16.0" prefWidth="290.0" text="E-mail">
                            <VBox.margin>
                               <Insets top="3.0" />
                            </VBox.margin>
                         </Label>
-                        <TextField fx:id="emailInput" prefHeight="24.0" prefWidth="234.0">
+                        <TextField fx:id="emailInput" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="24.0" prefWidth="290.0">
                            <VBox.margin>
                               <Insets top="3.0" />
                            </VBox.margin>
                         </TextField>
-                        <Label prefHeight="16.0" prefWidth="289.0" text="Escolha uma senha">
+                        <Label minWidth="-Infinity" prefHeight="16.0" prefWidth="290.0" text="Escolha uma senha">
                            <VBox.margin>
                               <Insets top="3.0" />
                            </VBox.margin>
                         </Label>
-                        <TextField fx:id="passwordInput" prefHeight="24.0" prefWidth="234.0">
+                        <TextField fx:id="passwordInput" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="24.0" prefWidth="290.0">
                            <VBox.margin>
                               <Insets top="3.0" />
                            </VBox.margin>
