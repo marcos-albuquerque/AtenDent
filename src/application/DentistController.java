@@ -104,26 +104,7 @@ public class DentistController {
 			passwordInput.clear();
 		}
 		
-	}
-		
-	public void openFileSecretary() {
-		try
-		{
-			
-			file = new FileOutputStream("src/files/secretary.txt");			
-			
-		}
-		catch (SecurityException securityException)
-		{		
-			System.err.println("Write permission denied. Terminating.");
-			System.exit(1); 	 
-		} 	 
-		catch (FileNotFoundException fileNotFoundException)
-		{
-			System.err.println("Error opening file. Terminating.");
-			System.exit(1); 
-		} 
-	} 
+	}		
 	
 	@FXML
     void logout(ActionEvent event) throws IOException {
