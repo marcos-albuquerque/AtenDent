@@ -89,6 +89,7 @@ public class DentistController {
     		obj.put("email", secretary.getEmail());
     		obj.put("password", secretary.getPassword());
     		
+    		// Criar um novo método para isso
     		try (FileWriter file = new FileWriter("src/files/secretary.json")) {
     			file.write(obj.toString());
     			file.flush();

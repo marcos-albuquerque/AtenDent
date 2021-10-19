@@ -142,7 +142,7 @@ public class SecretaryController implements Initializable {
 					scheduleInput.getText(), getDate(), typeInput.getText(),
 					getGenrer());			
 			
-			Object obj2 = getPacientFronFile(); // Obtem pacientes do arquivo .json na forma de Object
+			Object obj2 = getPacientFromFile(); // Obtem pacientes do arquivo .json na forma de Object
 			JSONObject jsonObject = (JSONObject) obj2; // converte objeto para JSONObject
 			JSONArray pacienteArray = (JSONArray) jsonObject.get("pacientes"); // obtem array de pacientes			
 				
@@ -214,7 +214,9 @@ public class SecretaryController implements Initializable {
 	void removePacient(ActionEvent event) {
 		int selectedID = tableView.getSelectionModel().getSelectedIndex();
 		
-		Object obj2 = getPacientFronFile(); // Obtem pacientes do arquivo .json na forma de Object
+		String selectedCPF = cpfColumn.getCellData(selectedID);
+		
+		Object obj2 = getPacientFromFile(); // Obtem pacientes do arquivo .json na forma de Object
 		JSONObject jsonObject = (JSONObject) obj2; // converte objeto para JSONObject
 		JSONArray pacienteArray = (JSONArray) jsonObject.get("pacientes"); // obtem array de pacientes			
 					
@@ -231,11 +233,27 @@ public class SecretaryController implements Initializable {
 			
 		}				
 		
-		int index = pacienteArray.indexOf(pacienteArray.get(selectedID));
-		listPacients.remove(index);
+		String cpf = "";
+		
+		Iterator<Object> iterator = pacienteArray.iterator();
+		
+		for(int i = 0; i < pacienteArray.size(); i++) {
+			
+			Object obj = (Object) iterator.next();
+			JSONObject jsonObj = (JSONObject) obj;
+			cpf = (String) jsonObj.get("CPF");
+			
+			if(cpf.equals(selectedCPF)) {
+				System.out.printf("%d: %s\n", i, cpf);
+				listPacients.remove(i);
+			}
+		}
+		
+//		int index = pacienteArray.indexOf(pacienteArray.get(selectedID));
+//		listPacients.remove(index);
 		
 		System.out.println(pacienteArray.get(selectedID));
-		System.out.println(index);
+		System.out.println(selectedCPF);		
 		
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.addAll(listPacients);
@@ -253,7 +271,7 @@ public class SecretaryController implements Initializable {
 		
 		Paciente paciente;
 		
-		Object obj = getPacientFronFile(); // Obtem pacientes do arquivo .json na forma de Object
+		Object obj = getPacientFromFile(); // Obtem pacientes do arquivo .json na forma de Object
 		JSONObject jsonObject = (JSONObject) obj; // converte objeto para JSONObject
 		JSONArray pacienteArray = (JSONArray) jsonObject.get("pacientes"); // obtem array de pacientes
 		
@@ -300,7 +318,7 @@ public class SecretaryController implements Initializable {
 		}
 	}
 	
-	public Object getPacientFronFile() {
+	public Object getPacientFromFile() {
 		
 		JSONParser parser = new JSONParser();
 		
@@ -336,8 +354,5 @@ public class SecretaryController implements Initializable {
 		
 		return genrer;
 	}
-	
-	// FALTA IMPLEMENTAR:
-	// 	salvar e recuperar dados da tabela de consulta a partir de um arquivo json
 
 }
