@@ -5,14 +5,17 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.FormatterClosedException;
 import java.util.NoSuchElementException;
+import java.util.ResourceBundle;
 
 import org.json.simple.JSONObject;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -23,7 +26,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 @SuppressWarnings("unused")
-public class DentistController {
+public class DentistController implements Initializable {
 	
 	// variáveis para Tabela de consultas
 	@FXML
@@ -119,6 +122,11 @@ public class DentistController {
 		stage.setScene(scene);
 		stage.show();
     }
+
+	@Override
+	public void initialize(URL arg0, ResourceBundle arg1) {
+		
+	}
 	
 	// FALTA IMPLEMENTAR:
 	// tabela de consultas
