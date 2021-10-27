@@ -111,7 +111,7 @@ public class SecretaryController implements Initializable {
     private TableColumn<Consulta, String> dateColumn;
 
     @FXML
-    private TableColumn<Consulta, String> typeCollumn;
+    private TableColumn<Consulta, String> typeColumn;
     
     @FXML
     private Label nameLabel;
@@ -156,14 +156,22 @@ public class SecretaryController implements Initializable {
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		
+		// inicializa dados da tabela de pacientes
 		nameColumn.setCellValueFactory(new PropertyValueFactory<Paciente, String>("name"));
 		cpfColumn.setCellValueFactory(new PropertyValueFactory<>("cpf"));
 		addressColumn.setCellValueFactory(new PropertyValueFactory<Paciente, String>("address"));
 		phoneColumn.setCellValueFactory(new PropertyValueFactory<Paciente, String>("phoneNumber"));
-		genreColumn.setCellValueFactory(new PropertyValueFactory<Paciente, String>("genre"));						
+		genreColumn.setCellValueFactory(new PropertyValueFactory<Paciente, String>("genre"));	
+		
+		// inicializa dados da tabela de consultas
+		nameColumn2.setCellValueFactory(new PropertyValueFactory<Consulta, String>("name"));
+		scheduleColumn.setCellValueFactory(new PropertyValueFactory<Consulta, String>("schedule"));
+		dateColumn.setCellValueFactory(new PropertyValueFactory<Consulta, String>("date"));
+		typeColumn.setCellValueFactory(new PropertyValueFactory<Consulta, String>("type"));
 						
-		fillOutTableView(); // preenche tableview com os dados do aquivo .json
+		fillOutPacientTableView(); // preenche tableview dos pacientes com os dados do aquivo .json
+		fillOutAppointmentTableView(); // preenche tableview das consultas com os dados do aquivo .json
+				
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -219,7 +227,7 @@ public class SecretaryController implements Initializable {
 	        
 	        // Atualiza tabela
 	        tableView.getItems().clear(); // limpa tabela	        	       
-			fillOutTableView(); // preenche a tabela novamento com os dados atuais
+	        fillOutPacientTableView(); // preenche a tabela novamento com os dados atuais
 		}
 	}
 	
@@ -233,6 +241,7 @@ public class SecretaryController implements Initializable {
 			warnLabel2.setVisible(true);
 		}
 		else { // Se todos os campos foram preenchidos
+			
 			Consulta consulta = new Consulta(nameLabel.getText(), cpfLabel.getText(),
 					addressLabel.getText(), phoneLabel.getText(), genreLabel.getText(),
 					scheduleInput.getText(), getDate(), typeInput.getText());
@@ -277,6 +286,10 @@ public class SecretaryController implements Initializable {
 			
 			// trocar para a tab de Dados da contulta
 			tabPane.getSelectionModel().select(appointmentTab);
+			
+			// Atualiza tabela
+	        tableView2.getItems().clear(); // limpa tabela de consultas       	       
+	        fillOutAppointmentTableView(); // preenche a tabela novamento com os dados atuais
 		}
     }
 	
@@ -346,9 +359,6 @@ public class SecretaryController implements Initializable {
 			}
 		}
 		
-//		System.out.println(pacienteArray.get(selectedID));
-//		System.out.println(selectedCPF);		
-		
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.addAll(listPacients);
 		
@@ -358,10 +368,62 @@ public class SecretaryController implements Initializable {
 		savePacientInFile(consulta);
 				
 		tableView.getItems().clear(); // limpa tabela	 
-		fillOutTableView(); // preenche a tabela novamento com os dados atuais        
+		fillOutPacientTableView(); // preenche a tabela novamento com os dados atuais        
 	}
 	
-	public void fillOutTableView() {
+	@SuppressWarnings("unchecked")
+	@FXML
+    void removeAppointment(ActionEvent event) {
+		int selectedID = tableView2.getSelectionModel().getSelectedIndex();		
+		String selectedName = nameColumn2.getCellData(selectedID);
+		String selectedSchedule = scheduleColumn.getCellData(selectedID);
+		String selectedDate = dateColumn.getCellData(selectedID);
+		
+		Object obj2 = getAppointmentFromFile(); // Obtem pacientes do arquivo .json na forma de Object
+		JSONObject jsonObject = (JSONObject) obj2; // converte objeto para JSONObject
+		JSONArray appointmentArray = (JSONArray) jsonObject.get("appointments"); // obtem array de pacientes			
+					
+		ArrayList<Object> listAppointments = new ArrayList<>();		
+		
+		listAppointments.addAll(appointmentArray);
+		
+		String name = "";
+		String schedule = "";
+		String date = "";
+		
+		System.out.println(selectedName);
+		System.out.println(selectedSchedule);
+		System.out.println(selectedDate);
+		
+		Iterator<Object> iterator = appointmentArray.iterator();
+	
+		for(int i = 0; i < appointmentArray.size(); i++) {
+			
+			Object obj = (Object) iterator.next();
+			JSONObject jsonObj = (JSONObject) obj;
+			name = (String) jsonObj.get("name");
+			schedule = (String) jsonObj.get("schedule");
+			date = (String) jsonObj.get("date");
+			
+			if(name.equals(selectedName) && schedule.equals(selectedSchedule) && date.equals(selectedDate)) {
+				listAppointments.remove(i);
+			}
+		}
+		
+		JSONArray jsonArray = new JSONArray();
+		jsonArray.addAll(listAppointments);
+		
+		JSONObject consulta = new JSONObject();
+		consulta.put("appointments", jsonArray);
+		
+		saveAppointmentInFile(consulta);
+				
+		tableView2.getItems().clear(); // limpa tabela 
+		fillOutAppointmentTableView(); // preenche a tabela de consultas novamento com os dados atuais 
+    }
+
+	
+	public void fillOutPacientTableView() {
 		
 		Paciente paciente;
 		
@@ -395,6 +457,45 @@ public class SecretaryController implements Initializable {
 			System.out.printf("Name %d: %s\n", i, name);
 			System.out.printf("CPF %d: %s\n", i, cpf);
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void fillOutAppointmentTableView() {
+		Consulta consulta;
+		
+		Object obj = getAppointmentFromFile();
+		JSONObject jsonObject = (JSONObject) obj;
+		JSONArray appointmentArray = (JSONArray) jsonObject.get("appointments");
+		
+		Iterator<Object> iterator = appointmentArray.iterator();
+		
+		String name, cpf, address, phoneNumber, genre, schedule, date, type;
+		
+		for(int i = 0; i < appointmentArray.size(); i++) {
+			
+			Object obj2 = (Object) iterator.next();
+			JSONObject jsonObj2 = (JSONObject) obj2;
+			
+			name = (String) jsonObj2.get("name");
+			cpf = (String) jsonObj2.get("CPF");
+			address = (String) jsonObj2.get("address");
+			phoneNumber = (String) jsonObj2.get("phoneNumber");
+			genre = (String) jsonObj2.get("genre");
+			schedule = (String) jsonObj2.get("schedule");
+			date = (String) jsonObj2.get("date");
+			type = (String) jsonObj2.get("type");
+			
+			consulta = new Consulta(name, cpf, address, phoneNumber, genre, schedule, date, type);
+			
+			ObservableList<Consulta> consultas = tableView2.getItems();
+
+			consultas.add(consulta);
+	        tableView2.setItems(consultas);
+			
+			System.out.printf("Name %d: %s\n", i, name);
+			System.out.printf("CPF %d: %s\n", i, cpf);
+		}
+		
 	}
 	
 	public void savePacientInFile( JSONObject consulta ) {
