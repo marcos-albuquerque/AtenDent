@@ -1,11 +1,14 @@
 package application;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.FormatterClosedException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -13,6 +16,8 @@ import java.util.ResourceBundle;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -67,8 +72,23 @@ public class DentistController implements Initializable {
     
     @FXML
     private Label warnLabel;
-        
-    private static FileOutputStream file;
+       
+    // Conclusão de consulta
+    @FXML
+    private TableView<Consulta> tableView1;
+
+    @FXML
+    private TableColumn<Consulta, String> nameColumn1;
+
+    @FXML
+    private TableColumn<Consulta, String> scheduleColumn1;
+
+    @FXML
+    private TableColumn<Consulta, String> dateColumn1;
+
+    @FXML
+    private TableColumn<Consulta, String> typeColumn1;
+
 	
     @Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -77,8 +97,14 @@ public class DentistController implements Initializable {
     	scheduleColumn.setCellValueFactory(new PropertyValueFactory<Consulta, String>("schedule"));
     	dateColumn.setCellValueFactory(new PropertyValueFactory<Consulta, String>("date"));
     	typeColumn.setCellValueFactory(new PropertyValueFactory<Consulta, String>("type"));
-    	    
+    	
+    	nameColumn1.setCellValueFactory(new PropertyValueFactory<Consulta, String>("name"));
+    	scheduleColumn1.setCellValueFactory(new PropertyValueFactory<Consulta, String>("schedule"));
+    	dateColumn1.setCellValueFactory(new PropertyValueFactory<Consulta, String>("date"));
+    	typeColumn1.setCellValueFactory(new PropertyValueFactory<Consulta, String>("type"));
+    	
     	fillOutAppointmentTableView();
+    	fillOutHistoryTableView();
 	}
     
 	@SuppressWarnings("unchecked")
@@ -94,7 +120,6 @@ public class DentistController implements Initializable {
 			warnLabel.setVisible(true);	
 			
 		} else {
-						
 			Secretary secretary = new Secretary(nameInput.getText(), cpfInput.getText(),
 					phoneNumberInput.getText(), emailInput.getText(), passwordInput.getText());
 			
@@ -137,6 +162,49 @@ public class DentistController implements Initializable {
 		stage.show();
     }
 	
+	@SuppressWarnings("unchecked")
+	@FXML
+    void appointmentDone(ActionEvent event) {
+		// pegar dados da tableview da consulta OK
+		// salvar em arquivo		
+		
+		int selectedID = tableView.getSelectionModel().getSelectedIndex();		
+		String selectedName = nameColumn.getCellData(selectedID);
+		String selectedSchedule = scheduleColumn.getCellData(selectedID);
+		String selectedDate = dateColumn.getCellData(selectedID);
+		String selectedType = typeColumn.getCellData(selectedID);
+		
+		Consulta consulta = new Consulta(selectedName, "", "", "", "",
+				selectedSchedule, selectedDate, selectedType);		
+
+		Object obj2 = getHistoryFromFile(); // Obtem consultas do arquivo .json na forma de Object
+		JSONObject jsonObject = (JSONObject) obj2; // converte objeto para JSONObject
+		JSONArray historyArray = (JSONArray) jsonObject.get("history"); // obtem array de consultas
+	
+		ArrayList<Object> listHistory = new ArrayList<>();
+		
+		listHistory.addAll(historyArray);
+		
+		JSONObject obj = new JSONObject();
+		JSONObject history = new JSONObject();
+		
+		obj.put("name", consulta.getName());		
+		obj.put("schedule", consulta.getSchedule());
+		obj.put("date", consulta.getDate());
+		obj.put("type", consulta.getType());
+		
+		listHistory.add(obj);
+		
+		JSONArray jsonArray = new JSONArray();
+		jsonArray.addAll(listHistory);
+		
+		history.put("history", jsonArray);
+		
+		saveHistoryInFile(history);
+		
+		tableView1.getItems().clear();     	       
+		fillOutHistoryTableView();
+    }
 	
 	@SuppressWarnings("unchecked")
 	public void fillOutAppointmentTableView() {
@@ -179,10 +247,141 @@ public class DentistController implements Initializable {
 		
 	}
 	
+	@SuppressWarnings("unchecked")
+	public void fillOutHistoryTableView() {
+		Consulta history;
+		
+		Object obj = getHistoryFromFile();
+		JSONObject jsonObject = (JSONObject) obj;
+		JSONArray historyArray = (JSONArray) jsonObject.get("history");
+		
+		Iterator<Object> iterator = historyArray.iterator();
+		
+		String name, cpf, address, phoneNumber, genre, schedule, date, type;
+		
+		for(int i = 0; i < historyArray.size(); i++) {
+			
+			Object obj2 = (Object) iterator.next();
+			JSONObject jsonObj2 = (JSONObject) obj2;
+			
+			name = (String) jsonObj2.get("name");
+			cpf = (String) jsonObj2.get("CPF");
+			address = (String) jsonObj2.get("address");
+			phoneNumber = (String) jsonObj2.get("phoneNumber");
+			genre = (String) jsonObj2.get("genre");
+			schedule = (String) jsonObj2.get("schedule");
+			date = (String) jsonObj2.get("date");
+			type = (String) jsonObj2.get("type");
+			
+			history = new Consulta(name, cpf, address, phoneNumber, genre, schedule, date, type);
+			
+			ObservableList<Consulta> histories = tableView1.getItems();
+
+			histories.add(history);
+	        tableView1.setItems(histories);
+			
+			System.out.printf("Name %d: %s\n", i, name);
+			System.out.printf("CPF %d: %s\n", i, cpf);
+		}
+	}
 	
-	// FALTA IMPLEMENTAR:
-	// tabela de consultas
-	//		buscar de arquivo json
+	public void saveHistoryInFile( JSONObject history ) {
+		try (FileWriter file = new FileWriter("src/files/history.json")) { 
+			file.write(history.toString());
+			file.flush();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
+	@SuppressWarnings("unchecked")
+	public Object getHistoryFromFile() {
+		File fileInputFile = new File("src/files/history.json");
+		
+		if(fileInputFile.length() == 0) {
+		
+			ArrayList<Object> listHistory = new ArrayList<>();
+			
+			JSONObject obj2 = new JSONObject();
+			JSONObject history = new JSONObject();
+			
+//			obj2.put("name", "");
+//			obj2.put("schedule", "");
+//			obj2.put("date", "");
+//			obj2.put("type", "");
+			
+			listHistory.add(obj2);
+			
+			JSONArray jsonArray = new JSONArray();
+			jsonArray.addAll(listHistory);
+							
+			history.put("history", jsonArray);						
+			
+			// salva no arquivo
+			saveHistoryInFile(history);
+		}
+		
+		JSONParser parser = new JSONParser();				
+		
+		Object obj = null;
+		
+		try {
+			obj = parser.parse(new FileReader("src/files/history.json"));			
+			
+		}
+		catch(FileNotFoundException e) { e.printStackTrace(); }
+		catch(IOException e) { e.printStackTrace(); }
+		catch(ParseException e) { e.printStackTrace(); }		
+		
+		return obj;
+	}
 	
+	@SuppressWarnings("unchecked")
+	@FXML
+    void removeHistory(ActionEvent event) {
+		int selectedID = tableView1.getSelectionModel().getSelectedIndex();		
+		String selectedName = nameColumn1.getCellData(selectedID);
+		String selectedSchedule = scheduleColumn1.getCellData(selectedID);
+		String selectedDate = dateColumn1.getCellData(selectedID);
+		
+		Object obj2 = getHistoryFromFile(); // Obtem pacientes do arquivo .json na forma de Object
+		JSONObject jsonObject = (JSONObject) obj2; // converte objeto para JSONObject
+		JSONArray historyArray = (JSONArray) jsonObject.get("history"); // obtem array de pacientes			
+					
+		ArrayList<Object> listHistory = new ArrayList<>();		
+		
+		listHistory.addAll(historyArray);
+		
+		String name = "";
+		String schedule = "";
+		String date = "";		
+		
+		Iterator<Object> iterator = historyArray.iterator();
+	
+		for(int i = 0; i < historyArray.size(); i++) {
+			
+			Object obj = (Object) iterator.next();
+			JSONObject jsonObj = (JSONObject) obj;
+			name = (String) jsonObj.get("name");
+			schedule = (String) jsonObj.get("schedule");
+			date = (String) jsonObj.get("date");
+			
+			if(name.equals(selectedName) && schedule.equals(selectedSchedule) && date.equals(selectedDate)) {
+				listHistory.remove(i);
+			}
+		}
+		
+		JSONArray jsonArray = new JSONArray();
+		jsonArray.addAll(listHistory);
+		
+		JSONObject history = new JSONObject();
+		history.put("history", jsonArray);
+		
+		saveHistoryInFile(history);
+				
+		tableView1.getItems().clear(); // limpa tabela 
+		fillOutHistoryTableView(); 
+    }
+		
 }

@@ -33,6 +33,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 
 public class SecretaryController implements Initializable {
 	
@@ -144,6 +145,12 @@ public class SecretaryController implements Initializable {
     private Tab appointmentTab;
     
     @FXML
+    private Tab pacientEditTab;
+    
+    @FXML
+    private Tab pacientTab;
+    
+    @FXML
     private TabPane tabPane;
     
     @FXML
@@ -152,6 +159,54 @@ public class SecretaryController implements Initializable {
     @FXML
     private Button regAppointment1;
 
+
+    // Edit pacient
+    @FXML
+    private TextField nameInput1;
+
+    @FXML
+    private TextField cpfInput1;
+
+    @FXML
+    private TextField addressInput1;
+
+    @FXML
+    private TextField phoneNumberInput1;
+
+    @FXML
+    private RadioButton rbFemale1;
+
+    @FXML
+    private ToggleGroup sexo1;
+
+    @FXML
+    private RadioButton rbMale1;
+
+    @FXML
+    private RadioButton rbOther1;
+
+    @FXML
+    private Label warnLabel3;
+    
+    
+    // Edit Appointment
+    @FXML
+    private Label warnLabel4;
+
+    @FXML
+    private Tab appointmentEditTab;
+
+    @FXML
+    private Label nameLabel2;
+
+    @FXML
+    private TextField scheduleInput2;
+
+    @FXML
+    private DatePicker dateInput2;
+
+    @FXML
+    private TextArea typeInput2;
     
 	
 	@Override
@@ -171,6 +226,12 @@ public class SecretaryController implements Initializable {
 						
 		fillOutPacientTableView(); // preenche tableview dos pacientes com os dados do aquivo .json
 		fillOutAppointmentTableView(); // preenche tableview das consultas com os dados do aquivo .json
+		
+		nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+		
+		nameColumn.setOnEditCommit(e -> {
+			e.getTableView().getItems().get(e.getTablePosition().getRow()).setName(e.getNewValue());
+		});
 				
 	}
 	
@@ -233,7 +294,7 @@ public class SecretaryController implements Initializable {
 	
 	@SuppressWarnings("unchecked")
 	@FXML
-    void registerAppointment(ActionEvent event) {
+    void registerAppointment(ActionEvent event) {		
 		
 		// Se todos os campos não foram preenchidos
 		if(scheduleInput.getText().equals("") || getDate().equals("") || typeInput.getText().equals("")) {
@@ -294,7 +355,7 @@ public class SecretaryController implements Initializable {
     }
 	
 	@FXML
-    void changeTab(ActionEvent event) {
+    void changeAppointmentTab(ActionEvent event) {
 		// obter dados do paciente selecionado
 		int selectedID = tableView.getSelectionModel().getSelectedIndex();
 		
@@ -311,12 +372,10 @@ public class SecretaryController implements Initializable {
 		phoneLabel.setText(phone);
 		genreLabel.setText(genre);
 		
-		regAppointmentTab.setDisable(false);			
+		regAppointmentTab.setDisable(false);					
 		tabPane.getSelectionModel().select(regAppointmentTab);
 
     }
-	
-	
 	
 	@FXML
     void logout(ActionEvent event) throws IOException {
@@ -330,6 +389,7 @@ public class SecretaryController implements Initializable {
 	@SuppressWarnings("unchecked")
 	@FXML
 	void removePacient(ActionEvent event) {
+		
 		int selectedID = tableView.getSelectionModel().getSelectedIndex();
 		
 		String selectedCPF = cpfColumn.getCellData(selectedID);
@@ -373,6 +433,221 @@ public class SecretaryController implements Initializable {
 	
 	@SuppressWarnings("unchecked")
 	@FXML
+    void updataPacient(ActionEvent event) {
+		
+		if(nameInput1.getText().equals("") || cpfInput1.getText().equals("") || addressInput1.getText().equals("")
+				|| phoneNumberInput1.getText().equals("") || getGenrer1().equals("")) {
+			warnLabel3.setText("Preencha todos os campos!");
+			warnLabel3.setVisible(true);
+		}
+		else {
+			int selectedID = tableView.getSelectionModel().getSelectedIndex();
+			String selectedCPF = cpfColumn.getCellData(selectedID);
+									
+			Object obj2 = getPacientFromFile(); // Obtem pacientes do arquivo .json na forma de Object
+			JSONObject jsonObject = (JSONObject) obj2; // converte objeto para JSONObject
+			JSONArray pacienteArray = (JSONArray) jsonObject.get("pacientes"); // obtem array de pacientes			
+						
+			ArrayList<Object> listPacients = new ArrayList<>();		
+			
+			listPacients.addAll(pacienteArray);
+			
+			String cpf = "";
+			
+			Iterator<Object> iterator = pacienteArray.iterator();
+			
+			for(int i = 0; i < pacienteArray.size(); i++) {
+				
+				Object obj = (Object) iterator.next();
+				JSONObject jsonObj = (JSONObject) obj;
+				cpf = (String) jsonObj.get("CPF");
+				
+				if(cpf.equals(selectedCPF)) {
+					System.out.printf("%d: %s\n", i, cpf);
+					if(selectedCPF != null)
+						listPacients.remove(i);
+				}
+			}
+			
+			Paciente paciente = new Paciente(nameInput1.getText(), cpfInput1.getText(),
+					addressInput1.getText(), phoneNumberInput1.getText(),getGenrer1());	
+			
+			JSONObject obj = new JSONObject();
+			JSONObject consulta = new JSONObject();
+			
+			obj.put("name", paciente.getName());
+			obj.put("CPF", paciente.getCpf());
+			obj.put("address", paciente.getAddress());
+			obj.put("phoneNumber", paciente.getPhoneNumber());
+			obj.put("genre", paciente.getGenre());
+			
+			listPacients.add(obj);
+			
+			JSONArray jsonArray = new JSONArray();
+			jsonArray.addAll(listPacients);
+			
+			consulta.put("pacientes", jsonArray);						
+			
+			// salva no arquivo
+			savePacientInFile(consulta);
+			
+			// limpa os campos
+			nameInput1.clear();
+			cpfInput1.clear();
+			addressInput1.clear();
+			phoneNumberInput1.clear();
+			
+			// desativar a regAppointmentTab e pacientTab
+			pacientEditTab.setDisable(true);
+			pacientTab.setDisable(false);
+		
+			// trocar para a tab de Dados dos pacientes
+			tabPane.getSelectionModel().select(pacientTab);
+						
+			// Atualiza tabela
+			tableView.getItems().clear(); // limpa tabela de pacientess       	       
+			fillOutPacientTableView(); // preenche a tabela novamento com os dados atuais
+		}
+    }
+	
+	@FXML
+    void changePacientEditableTab(ActionEvent event) {
+		int selectedID = tableView.getSelectionModel().getSelectedIndex();
+		
+		String name = nameColumn.getCellData(selectedID);
+		String cpf = cpfColumn.getCellData(selectedID);
+		String address = addressColumn.getCellData(selectedID);
+		String phone = phoneColumn.getCellData(selectedID);
+		String genre = genreColumn.getCellData(selectedID);
+		
+		// preenche os campos do paciente
+		nameInput1.setText(name);
+		cpfInput1.setText(cpf);
+		addressInput1.setText(address);
+		phoneNumberInput1.setText(phone);
+		
+		if(genre.equals("Masculino")) {
+			sexo1.selectToggle(rbMale1);
+		} else if(genre.equals("Feminino")) {
+			sexo1.selectToggle(rbFemale1);
+		} else {
+			sexo1.selectToggle(rbOther1);
+		}
+				
+		pacientEditTab.setDisable(false);		
+		pacientTab.setDisable(true);
+		tabPane.getSelectionModel().select(pacientEditTab);
+    }
+	
+	@SuppressWarnings("unchecked")
+	@FXML
+    void upDateAppointment(ActionEvent event) {
+		if(scheduleInput2.getText().equals("") || getDate2().equals("") || typeInput2.getText().equals("")) {
+			warnLabel4.setText("Preencha todos os campos!");
+			warnLabel4.setVisible(true);
+		}
+		else {
+			int selectedID = tableView2.getSelectionModel().getSelectedIndex();
+						
+			String selectedName = nameColumn2.getCellData(selectedID);
+			String selectedCpf = cpfColumn.getCellData(selectedID);
+			String selectedAddress = addressColumn.getCellData(selectedID);
+			String selectedPhone= phoneColumn.getCellData(selectedID);
+			String selectedGenre = genreColumn.getCellData(selectedID);		
+			String selectedSchedule = scheduleColumn.getCellData(selectedID);
+			String selectedDate = dateColumn.getCellData(selectedID);
+			//String selectedType = typeColumn.getCellData(selectedID);
+									
+			Object obj2 = getAppointmentFromFile(); // Obtem pacientes do arquivo .json na forma de Object
+			JSONObject jsonObject = (JSONObject) obj2; // converte objeto para JSONObject
+			JSONArray appointmentArray = (JSONArray) jsonObject.get("appointments"); // obtem array de pacientes			
+						
+			ArrayList<Object> listAppointments = new ArrayList<>();		
+			
+			listAppointments.addAll(appointmentArray);
+			
+			String name = "";
+			String schedule = "";
+			String date = "";		
+			
+			Iterator<Object> iterator = appointmentArray.iterator();
+		
+			for(int i = 0; i < appointmentArray.size(); i++) {
+				
+				Object obj = (Object) iterator.next();
+				JSONObject jsonObj = (JSONObject) obj;
+				name = (String) jsonObj.get("name");
+				schedule = (String) jsonObj.get("schedule");
+				date = (String) jsonObj.get("date");
+				
+				if(name.equals(selectedName) && schedule.equals(selectedSchedule) && date.equals(selectedDate)) {
+					listAppointments.remove(i);
+				}
+			}
+			
+			Consulta consulta = new Consulta(selectedName, selectedCpf,
+					selectedAddress, selectedPhone, selectedGenre,
+					scheduleInput2.getText(), getDate2(), typeInput2.getText());			
+			
+			JSONObject obj = new JSONObject();
+			JSONObject appointment = new JSONObject();
+			
+			obj.put("name", consulta.getName());
+			obj.put("CPF", consulta.getCpf());
+			obj.put("address", consulta.getAddress());
+			obj.put("phoneNumber", consulta.getPhoneNumber());
+			obj.put("genre", consulta.getGenre());
+			obj.put("schedule", consulta.getSchedule());
+			obj.put("date", consulta.getDate());
+			obj.put("type", consulta.getType());
+			
+			listAppointments.add(obj);
+			
+			JSONArray jsonArray = new JSONArray();
+			jsonArray.addAll(listAppointments);
+			
+			appointment.put("appointments", jsonArray);						
+			
+			// salva no arquivo
+			saveAppointmentInFile(appointment);
+			
+			// limpa os campos
+			scheduleInput2.clear();
+			typeInput2.clear();
+			
+			// desativar a appointmentEditTab e appointmentTab
+			appointmentEditTab.setDisable(true);
+			appointmentTab.setDisable(false);
+		
+			// trocar para a tab de Dados das consultas
+			tabPane.getSelectionModel().select(appointmentTab);
+						
+			// Atualiza tabela
+			tableView2.getItems().clear(); // limpa tabela de consultas      	       
+			fillOutAppointmentTableView(); // preenche a tabela novamento com os dados atuais
+		}
+    }
+	
+	@FXML
+    void changeAppointmentEditableTab(ActionEvent event) {
+		int selectedID = tableView2.getSelectionModel().getSelectedIndex();
+		
+		String name = nameColumn2.getCellData(selectedID);
+		String schedule = scheduleColumn.getCellData(selectedID);
+		String type = typeColumn.getCellData(selectedID);
+		
+		// preenche os campos do paciente
+		nameLabel2.setText(name);
+		scheduleInput2.setText(schedule);
+		typeInput2.setText(type);
+		
+		appointmentEditTab.setDisable(false);		
+		appointmentTab.setDisable(true);
+		tabPane.getSelectionModel().select(appointmentEditTab);
+    }
+	
+	@SuppressWarnings("unchecked")
+	@FXML
     void removeAppointment(ActionEvent event) {
 		int selectedID = tableView2.getSelectionModel().getSelectedIndex();		
 		String selectedName = nameColumn2.getCellData(selectedID);
@@ -389,11 +664,7 @@ public class SecretaryController implements Initializable {
 		
 		String name = "";
 		String schedule = "";
-		String date = "";
-		
-		System.out.println(selectedName);
-		System.out.println(selectedSchedule);
-		System.out.println(selectedDate);
+		String date = "";		
 		
 		Iterator<Object> iterator = appointmentArray.iterator();
 	
@@ -613,16 +884,37 @@ public class SecretaryController implements Initializable {
 		return date.toString();
 	}
 	
+	private String getDate2() {
+		LocalDate date = dateInput2.getValue();
+		return date.toString();
+	}
+	
 	private String getGenrer() {
 		String genrer = "";
 		
 		if(rbMale.isSelected()) {
-			genrer = "Maculino";
+			genrer = "Masculino";
 		}
 		else if(rbFemale.isSelected()) {
 			genrer = "Feminino";
 		}
-		else {
+		else if(rbOther.isSelected()){
+			genrer = "Outro";
+		}
+		
+		return genrer;
+	}
+	
+	private String getGenrer1() {
+		String genrer = "";
+		
+		if(rbMale1.isSelected()) {
+			genrer = "Masculino";
+		}
+		else if(rbFemale1.isSelected()) {
+			genrer = "Feminino";
+		}
+		else if(rbOther1.isSelected()){
 			genrer = "Outro";
 		}
 		
