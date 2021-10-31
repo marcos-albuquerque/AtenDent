@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.FormatterClosedException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
@@ -304,12 +305,7 @@ public class DentistController implements Initializable {
 			ArrayList<Object> listHistory = new ArrayList<>();
 			
 			JSONObject obj2 = new JSONObject();
-			JSONObject history = new JSONObject();
-			
-//			obj2.put("name", "");
-//			obj2.put("schedule", "");
-//			obj2.put("date", "");
-//			obj2.put("type", "");
+			JSONObject history = new JSONObject();			
 			
 			listHistory.add(obj2);
 			
@@ -383,5 +379,51 @@ public class DentistController implements Initializable {
 		tableView1.getItems().clear(); // limpa tabela 
 		fillOutHistoryTableView(); 
     }
+	
+	@FXML
+    void updateSecretary(ActionEvent event) {
+		JSONParser parser = new JSONParser();
+		
+		String name = "";
+		String cpf = "";
+		String phone = "";
+		String email = "";
+		String password = "";
+		
+		try {
+			Object obj = parser.parse(new FileReader("src/files/secretary.json"));
+			JSONObject jsonObject = (JSONObject) obj;
+			name = (String) jsonObject.get("name");
+			cpf = (String) jsonObject.get("CPF");
+			phone = (String) jsonObject.get("phoneNumber");
+			email = (String) jsonObject.get("email");
+			password = (String) jsonObject.get("password");
+		}
+		catch(FileNotFoundException e) { e.printStackTrace(); }
+		catch(IOException e) { e.printStackTrace(); }
+		catch(ParseException e) { e.printStackTrace(); }
+		
+		nameInput.setText(name);
+		cpfInput.setText(cpf);
+		phoneNumberInput.setText(phone);
+		emailInput.setText(email);
+		passwordInput.setText(password);
+    }
+	
+	public Object getSecretaryFromFile() {
+		JSONParser parser = new JSONParser();				
+		
+		Object obj = null;
+		
+		try {
+			obj = parser.parse(new FileReader("src/files/secretary.json"));			
+			
+		}
+		catch(FileNotFoundException e) { e.printStackTrace(); }
+		catch(IOException e) { e.printStackTrace(); }
+		catch(ParseException e) { e.printStackTrace(); }		
+		
+		return obj;
+	}
 		
 }

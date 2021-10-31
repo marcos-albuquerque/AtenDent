@@ -113,11 +113,16 @@
                            </VBox.margin>
                         </TextField>
                         <Label fx:id="warnLabel" prefHeight="16.0" prefWidth="289.0" text="Label" visible="false" />
-                        <Button mnemonicParsing="false" onAction="#registerSecretary" text="Cadastrar">
-                           <VBox.margin>
-                              <Insets top="8.0" />
-                           </VBox.margin>
-                        </Button>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#updateSecretary" text="Editar">
+                                 <HBox.margin>
+                                    <Insets right="3.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button mnemonicParsing="false" onAction="#registerSecretary" text="Cadastrar" />
+                           </children>
+                        </HBox>
                      </children>
                   </VBox>
                </children>

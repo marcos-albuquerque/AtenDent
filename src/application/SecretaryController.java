@@ -801,11 +801,11 @@ public class SecretaryController implements Initializable {
 			JSONObject obj2 = new JSONObject();
 			JSONObject consulta = new JSONObject();
 			
-			obj2.put("name", "");
-			obj2.put("CPF", "");
-			obj2.put("address", "");
-			obj2.put("phoneNumber", "");
-			obj2.put("genre", "");
+//			obj2.put("name", "");
+//			obj2.put("CPF", "");
+//			obj2.put("address", "");
+//			obj2.put("phoneNumber", "");
+//			obj2.put("genre", "");
 			
 			listPacients.add(obj2);
 			
