@@ -90,6 +90,18 @@ public class DentistController implements Initializable {
     @FXML
     private TableColumn<Consulta, String> typeColumn1;
 
+    // Variáveis para edição de dentista
+    @FXML
+    private TextField nameInput1;
+
+    @FXML
+    private TextField cpfInput1;
+
+    @FXML
+    private TextField passwordInput1;
+   
+    @FXML
+    private Label warnLabel1;
 	
     @Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -148,7 +160,42 @@ public class DentistController implements Initializable {
 			passwordInput.clear();
 		}
 		
-	}		
+	}	
+	
+	@SuppressWarnings("unchecked")
+	@FXML
+    void registerDentist(ActionEvent event) {
+		if(nameInput1.getText().equals("") || cpfInput1.getText().equals("")				
+				|| passwordInput1.getText().equals("")) {
+			
+			warnLabel1.setStyle("-fx-text-fill: red;");
+			warnLabel1.setText("Preencha todos os campos!");
+			warnLabel1.setVisible(true);
+			
+		} else {
+			Dentist dentist = new Dentist(nameInput1.getText(), cpfInput1.getText(),
+					passwordInput1.getText());
+			
+			JSONObject obj = new JSONObject();
+    		
+    		obj.put("name", dentist.getName());
+    		obj.put("CPF", dentist.getCpf());
+    		obj.put("password", dentist.getPassword());
+    		
+    		// Criar um novo método para isso
+    		try (FileWriter file = new FileWriter("src/files/dentist.json")) {
+    			file.write(obj.toString());
+    			file.flush();
+    		}
+    		catch (IOException e) {
+    			e.printStackTrace();
+    		}		
+    		
+    		nameInput1.clear();
+			cpfInput1.clear();
+			passwordInput1.clear();
+		}
+    }
 	
 	@FXML
     void logout(ActionEvent event) throws IOException {
@@ -408,6 +455,30 @@ public class DentistController implements Initializable {
 		phoneNumberInput.setText(phone);
 		emailInput.setText(email);
 		passwordInput.setText(password);
+    }
+	
+	@FXML
+    void updateDentist(ActionEvent event) {
+		JSONParser parser = new JSONParser();
+		
+		String name = "";
+		String cpf = "";
+		String password = "";
+		
+		try {
+			Object obj = parser.parse(new FileReader("src/files/dentist.json"));
+			JSONObject jsonObject = (JSONObject) obj;
+			name = (String) jsonObject.get("name");
+			cpf = (String) jsonObject.get("CPF");
+			password = (String) jsonObject.get("password");
+		}
+		catch(FileNotFoundException e) { e.printStackTrace(); }
+		catch(IOException e) { e.printStackTrace(); }
+		catch(ParseException e) { e.printStackTrace(); }
+		
+		nameInput1.setText(name);
+		cpfInput1.setText(cpf);
+		passwordInput1.setText(password);
     }
 	
 	public Object getSecretaryFromFile() {

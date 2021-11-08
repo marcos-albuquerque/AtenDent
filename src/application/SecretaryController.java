@@ -18,6 +18,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -33,7 +35,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyEvent;
 
 public class SecretaryController implements Initializable {
 	
@@ -208,7 +210,11 @@ public class SecretaryController implements Initializable {
     @FXML
     private TextArea typeInput2;
     
-	
+    // Filtro
+    @FXML
+    private TextField filterField;
+    
+		
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// inicializa dados da tabela de pacientes
@@ -225,14 +231,44 @@ public class SecretaryController implements Initializable {
 		typeColumn.setCellValueFactory(new PropertyValueFactory<Consulta, String>("type"));
 						
 		fillOutPacientTableView(); // preenche tableview dos pacientes com os dados do aquivo .json
-		fillOutAppointmentTableView(); // preenche tableview das consultas com os dados do aquivo .json
+		fillOutAppointmentTableView(); // preenche tableview das consultas com os dados do aquivo .json		
 		
-		nameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-		
-		nameColumn.setOnEditCommit(e -> {
-			e.getTableView().getItems().get(e.getTablePosition().getRow()).setName(e.getNewValue());
+		//pacientFilter(pacientes);		
+	}
+	
+	@FXML
+	void pacientFilter(KeyEvent event) {
+		ObservableList<Paciente> pacientes = tableView.getItems();
+			
+		FilteredList<Paciente> filteredData = new FilteredList<>(pacientes, b -> true);		
+			
+		filterField.textProperty().addListener((observable, oldValue, newValue) -> {
+			filteredData.setPredicate(pacient -> {
+					
+				if (newValue == null || newValue.isEmpty()) {
+					return true;
+				}
+					
+				String lowerCaseFilter = newValue.toLowerCase();
+					
+				if (pacient.getName().toLowerCase().indexOf(lowerCaseFilter) != -1 ) {
+					return true; 
+				} else if (pacient.getCpf().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; 
+				}
+				else if (pacient.getAddress().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+				    return true;
+				}
+				else if (pacient.getPhoneNumber().toLowerCase().indexOf(lowerCaseFilter) != -1)
+				    return true;
+				else
+					return false; 
+			});
 		});
-				
+			
+		SortedList<Paciente> sortedData = new SortedList<>(filteredData);
+		sortedData.comparatorProperty().bind(tableView.comparatorProperty());
+		tableView.setItems(sortedData);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -283,7 +319,7 @@ public class SecretaryController implements Initializable {
 	        cpfInput.clear();
 	        addressInput.clear();
 	        phoneNumberInput.clear();
-	        	        
+	        
 	        warnLabel.setVisible(false);
 	        
 	        // Atualiza tabela
@@ -495,23 +531,25 @@ public class SecretaryController implements Initializable {
 			nameInput1.clear();
 			cpfInput1.clear();
 			addressInput1.clear();
-			phoneNumberInput1.clear();
+			phoneNumberInput1.clear();			
 			
 			// desativar a regAppointmentTab e pacientTab
 			pacientEditTab.setDisable(true);
-			pacientTab.setDisable(false);
-		
+			pacientTab.setDisable(false);						
+			
 			// trocar para a tab de Dados dos pacientes
 			tabPane.getSelectionModel().select(pacientTab);
-						
+			
 			// Atualiza tabela
-			tableView.getItems().clear(); // limpa tabela de pacientess       	       
+//			tableView.getItems().clear();
+//			tableView.refresh();			
 			fillOutPacientTableView(); // preenche a tabela novamento com os dados atuais
 		}
     }
 	
 	@FXML
     void changePacientEditableTab(ActionEvent event) {
+
 		int selectedID = tableView.getSelectionModel().getSelectedIndex();
 		
 		String name = nameColumn.getCellData(selectedID);
@@ -533,8 +571,12 @@ public class SecretaryController implements Initializable {
 		} else {
 			sexo1.selectToggle(rbOther1);
 		}
-				
-		pacientEditTab.setDisable(false);		
+		
+		System.out.println("Aditar paciente:");
+		System.out.println(name);
+		System.out.println(phone);
+		
+		pacientEditTab.setDisable(false);
 		pacientTab.setDisable(true);
 		tabPane.getSelectionModel().select(pacientEditTab);
     }
@@ -694,7 +736,7 @@ public class SecretaryController implements Initializable {
     }
 
 	
-	public void fillOutPacientTableView() {
+	public ObservableList<Paciente> fillOutPacientTableView() {
 		
 		Paciente paciente;
 		
@@ -705,7 +747,12 @@ public class SecretaryController implements Initializable {
 		@SuppressWarnings("unchecked")
 		Iterator<Object> iterator = pacienteArray.iterator();
 		
-		String name, cpf, address, phoneNumber, genre;
+		ObservableList<Paciente> pacientes = tableView.getItems();
+		ArrayList<Paciente> p = new ArrayList<>();
+		
+		String name, cpf, address, phoneNumber, genre;	
+		
+		tableView.getItems().clear();
 		
 		for(int i = 0; i < pacienteArray.size(); i++) {
 			
@@ -720,18 +767,22 @@ public class SecretaryController implements Initializable {
 			
 			paciente = new Paciente(name, cpf, address, phoneNumber, genre);
 			
-			ObservableList<Paciente> pacientes = tableView.getItems();
-
-	        pacientes.add(paciente);
-	        tableView.setItems(pacientes);
+//			pacientes = tableView.getItems();
+			p.add(paciente);
+//	        pacientes.add(paciente);
+//	        tableView.setItems(pacientes);
 			
 			System.out.printf("Name %d: %s\n", i, name);
 			System.out.printf("CPF %d: %s\n", i, cpf);
-		}
+		}	
+		pacientes.addAll(p);
+		tableView.setItems(pacientes);
+		
+		return pacientes;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void fillOutAppointmentTableView() {
+	public ObservableList<Consulta> fillOutAppointmentTableView() {
 		Consulta consulta;
 		
 		Object obj = getAppointmentFromFile();
@@ -741,6 +792,8 @@ public class SecretaryController implements Initializable {
 		Iterator<Object> iterator = appointmentArray.iterator();
 		
 		String name, cpf, address, phoneNumber, genre, schedule, date, type;
+		
+		ObservableList<Consulta> consultas = null;
 		
 		for(int i = 0; i < appointmentArray.size(); i++) {
 			
@@ -758,8 +811,8 @@ public class SecretaryController implements Initializable {
 			
 			consulta = new Consulta(name, cpf, address, phoneNumber, genre, schedule, date, type);
 			
-			ObservableList<Consulta> consultas = tableView2.getItems();
-
+			consultas = tableView2.getItems();
+			
 			consultas.add(consulta);
 	        tableView2.setItems(consultas);
 			
@@ -767,6 +820,7 @@ public class SecretaryController implements Initializable {
 			System.out.printf("CPF %d: %s\n", i, cpf);
 		}
 		
+		return consultas;
 	}
 	
 	public void savePacientInFile( JSONObject consulta ) {
@@ -800,12 +854,6 @@ public class SecretaryController implements Initializable {
 			
 			JSONObject obj2 = new JSONObject();
 			JSONObject consulta = new JSONObject();
-			
-//			obj2.put("name", "");
-//			obj2.put("CPF", "");
-//			obj2.put("address", "");
-//			obj2.put("phoneNumber", "");
-//			obj2.put("genre", "");
 			
 			listPacients.add(obj2);
 			

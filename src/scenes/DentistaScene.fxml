@@ -56,7 +56,7 @@
             </AnchorPane>
          </content>
       </Tab>
-      <Tab text="Cadastrar secretária">
+      <Tab text="Secretária">
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
@@ -121,6 +121,59 @@
                                  </HBox.margin>
                               </Button>
                               <Button mnemonicParsing="false" onAction="#registerSecretary" text="Cadastrar" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children>
+            </AnchorPane>
+         </content>
+      </Tab>
+      <Tab text="Dentista">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <VBox alignment="CENTER" layoutX="156.0" layoutY="29.0" minWidth="-Infinity" prefHeight="311.0" prefWidth="289.0" AnchorPane.bottomAnchor="29.0" AnchorPane.leftAnchor="156.0" AnchorPane.rightAnchor="155.0" AnchorPane.topAnchor="29.0">
+                     <children>
+                        <Label minWidth="-Infinity" prefHeight="16.0" prefWidth="290.0" text="Nome completo">
+                           <VBox.margin>
+                              <Insets top="8.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TextField fx:id="nameInput1" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="24.0" prefWidth="290.0">
+                           <VBox.margin>
+                              <Insets top="3.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Label minWidth="-Infinity" prefHeight="16.0" prefWidth="290.0" text="CPF">
+                           <VBox.margin>
+                              <Insets top="3.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TextField fx:id="cpfInput1" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="24.0" prefWidth="290.0">
+                           <VBox.margin>
+                              <Insets top="3.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Label minWidth="-Infinity" prefHeight="16.0" prefWidth="290.0" text="Escolha uma senha">
+                           <VBox.margin>
+                              <Insets top="3.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TextField fx:id="passwordInput1" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="24.0" prefWidth="290.0">
+                           <VBox.margin>
+                              <Insets top="3.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Label fx:id="warnLabel1" prefHeight="16.0" prefWidth="289.0" text="Label" visible="false" />
+                        <HBox alignment="CENTER" prefHeight="45.0" prefWidth="289.0">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#updateDentist" text="Editar">
+                                 <HBox.margin>
+                                    <Insets right="3.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button mnemonicParsing="false" onAction="#registerDentist" text="Cadastrar" />
                            </children>
                         </HBox>
                      </children>
