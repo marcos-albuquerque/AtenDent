@@ -338,6 +338,9 @@ public class DentistController implements Initializable {
 		int selectedID = tableView.getSelectionModel().getSelectedIndex();
 		
 		if(selectedID != -1) {
+			
+			/* Adicionando consulta ao histórico */
+			
 			String selectedName = nameColumn.getCellData(selectedID);
 			String selectedSchedule = scheduleColumn.getCellData(selectedID);
 			String selectedDate = dateColumn.getCellData(selectedID);
@@ -371,8 +374,63 @@ public class DentistController implements Initializable {
 			
 			saveHistoryInFile(history);				       
 			fillOutHistoryTableView();
+			
+			
+			remove(selectedID);
 		}
     }
+	
+	
+	@SuppressWarnings("unchecked")
+	public void remove(int id) {
+		int selectedID = id;
+		
+		if(selectedID != -1) {
+			String selectedName = nameColumn.getCellData(selectedID);
+			String selectedSchedule = scheduleColumn.getCellData(selectedID);
+			String selectedDate = dateColumn.getCellData(selectedID);
+			
+			Object obj2 = getAppointmentFromFile(); // Obtem pacientes do arquivo .json na forma de Object
+			JSONObject jsonObject = (JSONObject) obj2; // converte objeto para JSONObject
+			JSONArray appointmentArray = (JSONArray) jsonObject.get("appointments"); // obtem array de pacientes			
+						
+			ArrayList<Object> listAppointments = new ArrayList<>();		
+			
+			listAppointments.addAll(appointmentArray);
+			
+			String name = "";
+			String schedule = "";
+			String date = "";		
+			
+			Iterator<Object> iterator = appointmentArray.iterator();
+		
+			for(int i = 0; i < appointmentArray.size(); i++) {
+				
+				Object obj = (Object) iterator.next();
+				JSONObject jsonObj = (JSONObject) obj;
+				name = (String) jsonObj.get("name");
+				schedule = (String) jsonObj.get("schedule");
+				date = (String) jsonObj.get("date");
+				
+				if(name.equals(selectedName) && schedule.equals(selectedSchedule) 
+						&& date.equals(selectedDate)) 
+				{
+					listAppointments.remove(i);
+				}
+			}
+			
+			JSONArray jsonArray = new JSONArray();
+			jsonArray.addAll(listAppointments);
+			
+			JSONObject consulta = new JSONObject();
+			consulta.put("appointments", jsonArray);
+			
+			saveAppointmentInFile(consulta);
+					
+			tableView.getItems().clear(); // limpa tabela 
+			fillOutAppointmentTableView();
+		}
+	}
 	
 	@SuppressWarnings("unchecked")
 	public void fillOutAppointmentTableView() {
@@ -450,6 +508,53 @@ public class DentistController implements Initializable {
 			histories.add(history);
 	        tableView1.setItems(histories);
 	        notFoundLabel2.setVisible(false);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Object getAppointmentFromFile() {
+		File fileInputFile = new File("src/files/appointments.json");
+		
+		if(fileInputFile.length() == 0) {
+		
+			ArrayList<Object> listPacients = new ArrayList<>();
+			
+			JSONObject obj2 = new JSONObject();
+			JSONObject consulta = new JSONObject();
+			
+			listPacients.add(obj2);
+			
+			JSONArray jsonArray = new JSONArray();
+			jsonArray.addAll(listPacients);
+							
+			consulta.put("appointments", jsonArray);						
+			
+			// salva no arquivo
+			saveAppointmentInFile(consulta);
+		}
+		
+		JSONParser parser = new JSONParser();				
+		
+		Object obj = null;
+		
+		try {
+			obj = parser.parse(new FileReader("src/files/appointments.json"));			
+			
+		}
+		catch(FileNotFoundException e) { e.printStackTrace(); }
+		catch(IOException e) { e.printStackTrace(); }
+		catch(ParseException e) { e.printStackTrace(); }		
+		
+		return obj;
+	}
+	
+	public void saveAppointmentInFile( JSONObject consulta ) {
+		try (FileWriter file = new FileWriter("src/files/appointments.json")) { 
+			file.write(consulta.toString());
+			file.flush();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
