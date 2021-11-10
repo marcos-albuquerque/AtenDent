@@ -18,20 +18,40 @@
       <content>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
-                  <TableView fx:id="tableView" layoutX="14.0" layoutY="14.0" prefHeight="308.0" prefWidth="574.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
-                    <columns>
-                      <TableColumn fx:id="nameColumn" prefWidth="194.0" text="Nome Completo" />
-                      <TableColumn fx:id="scheduleColumn" prefWidth="87.0" text="Horário" />
-                        <TableColumn fx:id="dateColumn" prefWidth="100.0" text="Data" />
-                        <TableColumn fx:id="typeColumn" prefWidth="186.0" text="Tipo de Consulta" />
-                    </columns>
-                  </TableView>
-                  <HBox alignment="BOTTOM_RIGHT" layoutX="454.0" layoutY="328.0" prefHeight="27.0" prefWidth="131.0" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="15.0">
+                  <VBox layoutX="15.0" layoutY="30.0" prefHeight="270.0" prefWidth="567.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="14.0">
                      <children>
+                        <HBox prefHeight="31.0" prefWidth="570.0">
+                           <children>
+                              <TextField fx:id="filterField" maxWidth="300.0" prefHeight="24.0" prefWidth="356.0" />
+                              <Button mnemonicParsing="false" onAction="#appointmentFilter" text="Buscar" />
+                           </children>
+                        </HBox>
+                        <Label fx:id="notFoundLabel" text="Label" textFill="#2e09e8" visible="false">
+                           <VBox.margin>
+                              <Insets bottom="3.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TableView fx:id="tableView" prefHeight="308.0" prefWidth="574.0">
+                          <columns>
+                            <TableColumn fx:id="nameColumn" prefWidth="194.0" text="Nome Completo" />
+                            <TableColumn fx:id="scheduleColumn" prefWidth="87.0" text="Horário" />
+                              <TableColumn fx:id="dateColumn" prefWidth="100.0" text="Data" />
+                              <TableColumn fx:id="typeColumn" prefWidth="186.0" text="Tipo de Consulta" />
+                          </columns>
+                        </TableView>
+                     </children>
+                  </VBox>
+                  <HBox alignment="BOTTOM_RIGHT" layoutX="454.0" layoutY="328.0" prefHeight="27.0" prefWidth="267.0" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="15.0">
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#fillOutAppointmentTableView" text="Atualizar">
+                           <HBox.margin>
+                              <Insets right="3.0" />
+                           </HBox.margin>
+                        </Button>
                         <Button mnemonicParsing="false" onAction="#appointmentDone" text="Concluir" />
                         <Button mnemonicParsing="false" onAction="#logout" text="Sair">
                            <HBox.margin>
-                              <Insets left="5.0" />
+                              <Insets left="3.0" />
                            </HBox.margin>
                         </Button>
                      </children>
@@ -43,15 +63,39 @@
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
-                  <TableView fx:id="tableView1" layoutX="14.0" layoutY="14.0" prefHeight="308.0" prefWidth="574.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
-                     <columns>
-                        <TableColumn fx:id="nameColumn1" prefWidth="194.0" text="Nome Completo" />
-                        <TableColumn fx:id="scheduleColumn1" prefWidth="87.0" text="Horário" />
-                        <TableColumn fx:id="dateColumn1" prefWidth="100.0" text="Data" />
-                        <TableColumn fx:id="typeColumn1" prefWidth="186.0" text="Tipo de Consulta" />
-                     </columns>
-                  </TableView>
-                  <Button layoutX="524.0" layoutY="331.0" mnemonicParsing="false" onAction="#removeHistory" text="Deletar" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
+                  <VBox layoutX="19.0" layoutY="15.0" prefHeight="289.0" prefWidth="554.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="14.0">
+                     <children>
+                        <HBox prefHeight="36.0" prefWidth="570.0">
+                           <children>
+                              <TextField fx:id="filterField2" maxWidth="300.0" prefHeight="24.0" prefWidth="362.0" />
+                              <Button mnemonicParsing="false" onAction="#historyFilter" text="Buscar">
+                                 <HBox.margin>
+                                    <Insets left="3.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                        </HBox>
+                        <Label fx:id="notFoundLabel2" prefHeight="16.0" prefWidth="485.0" text="Label" textFill="#2309eb" visible="false" />
+                        <TableView fx:id="tableView1" prefHeight="308.0" prefWidth="574.0">
+                           <columns>
+                              <TableColumn fx:id="nameColumn1" prefWidth="194.0" text="Nome Completo" />
+                              <TableColumn fx:id="scheduleColumn1" prefWidth="87.0" text="Horário" />
+                              <TableColumn fx:id="dateColumn1" prefWidth="100.0" text="Data" />
+                              <TableColumn fx:id="typeColumn1" prefWidth="186.0" text="Tipo de Consulta" />
+                           </columns>
+                        </TableView>
+                     </children>
+                  </VBox>
+                  <HBox alignment="TOP_RIGHT" layoutX="386.0" layoutY="329.0" prefHeight="26.0" prefWidth="200.0" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="15.0">
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#fillOutHistoryTableView" text="Atualizar">
+                           <HBox.margin>
+                              <Insets right="3.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button mnemonicParsing="false" onAction="#removeHistory" text="Deletar" />
+                     </children>
+                  </HBox>
                </children>
             </AnchorPane>
          </content>

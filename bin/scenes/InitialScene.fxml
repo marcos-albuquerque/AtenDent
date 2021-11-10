@@ -2,10 +2,11 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -37,11 +38,19 @@
                </VBox.margin>
             </Label>
             <PasswordField fx:id="passwordField" minWidth="-Infinity" />
-            <CheckBox fx:id="checkBox" mnemonicParsing="false" onAction="#change" prefHeight="18.0" prefWidth="252.0" text="Admin">
+            <RadioButton fx:id="rbDentist" mnemonicParsing="false" onAction="#changeIcon" prefHeight="18.0" prefWidth="260.0" text="Dentista">
+               <toggleGroup>
+                  <ToggleGroup fx:id="usuarios" />
+               </toggleGroup>
                <VBox.margin>
-                  <Insets top="3.0" />
+                  <Insets bottom="3.0" top="3.0" />
                </VBox.margin>
-            </CheckBox>
+            </RadioButton>
+            <RadioButton fx:id="rbSecretary" mnemonicParsing="false" onAction="#changeIcon" prefHeight="18.0" prefWidth="260.0" text="Secretário(a)" toggleGroup="$usuarios">
+               <VBox.margin>
+                  <Insets bottom="2.0" />
+               </VBox.margin>
+            </RadioButton>
             <Label fx:id="warnLabel" text="Label" textFill="#f50c0c" visible="false" />
             <Button fx:id="loginButton" mnemonicParsing="false" onAction="#login" prefHeight="24.0" prefWidth="253.0" text="Entrar" />
          </children>

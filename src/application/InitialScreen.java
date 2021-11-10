@@ -16,10 +16,11 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
@@ -30,8 +31,6 @@ public class InitialScreen {
 	private Scene scene;
 	private Parent root;
 	
-	@FXML
-	private CheckBox checkBox;
 	@FXML
 	private ImageView iconImageView;
 	@FXML
@@ -45,12 +44,21 @@ public class InitialScreen {
 	@FXML
 	private PasswordField passwordField;
 	
+	@FXML
+    private RadioButton rbDentist;
+
+    @FXML
+    private ToggleGroup usuarios;
+
+    @FXML
+    private RadioButton rbSecretary;
+	
 	Image image1 = new Image(getClass().getResourceAsStream("/img/dentist.png"));
 	Image image2 = new Image(getClass().getResourceAsStream("/img/secretary.png"));	
 	
-	public void change(ActionEvent event) {
+	public void changeIcon(ActionEvent event) {
 		
-		if(checkBox.isSelected()) {
+		if(rbDentist.isSelected()) {
 			userLabel.setText("Dentista");
 			iconImageView.setImage(image1);
 		}
@@ -68,7 +76,7 @@ public class InitialScreen {
 		String passwordInput = passwordField.getText();
 		
 		// se a checkBox estiver selecionada
-		if(checkBox.isSelected()) {								
+		if( rbDentist.isSelected() ) {								
 			
 			JSONParser parser = new JSONParser();
 			
@@ -89,13 +97,17 @@ public class InitialScreen {
 			if(cpfInput.equals(cpf) && passwordInput.equals(password)) {
 				root = FXMLLoader.load(getClass().getResource("/scenes/DentistaScene.fxml"));
 			}
-			else {				
+			else {			
 				warnLabel.setText("CPF e/ou senha incorretos!");
 				warnLabel.setVisible(true);
 			}
 			
 		}
-		else { // Se a checkBox não estiver selecionada			
+		else if( !rbDentist.isSelected() && !rbSecretary.isSelected() ) {
+			warnLabel.setText("Por favor, selecione um usuário");
+			warnLabel.setVisible(true);
+		}
+		else if( rbSecretary.isSelected() ){ // Se a checkBox não estiver selecionada			
 		
 			JSONParser parser = new JSONParser();
 			
@@ -125,7 +137,7 @@ public class InitialScreen {
 			else {
 				warnLabel.setText("CPF e/ou senha incorretos!");
 				warnLabel.setVisible(true);
-			}			
+			}
 		}
 		
 		if(root != null) {
